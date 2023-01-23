@@ -9,6 +9,8 @@
 ### Original Indicator code
 
 ```python
+//@version=4
+
 study(title = "ZLSMA - Zero Lag LSMA", shorttitle="ZLSMA", overlay=true, resolution="")
 length = input(title="Length", type=input.integer, defval=32)
 offset = input(title="Offset", type=input.integer, defval=0)

@@ -10,9 +10,23 @@
 import pandas as pd
 import numpy as np
 import talib as tl
+import os
+from os import environ as env
+from dotenv import load_dotenv
+from binance import Client
 
-# Set path to dataset
-dataset_path = "../"
+# Load API keys from env
+project_dotenv = os.path.join(os.path.abspath(""), ".env")
+if os.path.exists(project_dotenv):
+    load_dotenv(project_dotenv)
+
+api_key, api_secret = env.get("ENV_API_KEY"), env.get("ENV_SECRET_KEY")
+
+# Make API Client instance
+client = Client(api_key, api_secret)
+
+# Depricated - Set path to dataset
+# dataset_path = "../"
 short_col_names = [
     "open_time",
     "open",
@@ -29,10 +43,14 @@ short_col_names = [
 ]
 
 # Load Dataset
-data = pd.read_csv(
-    dataset_path + "BTCUSDT-15m-2023-01-20.csv",
-    names=short_col_names,
-)
+# data = pd.read_csv(
+    # dataset_path + "BTCUSDT-15m-2023-01-20.csv",
+    # names=short_col_names,
+# )
+# Get last 500 records of BTSUSDT 15m Timeframe
+klines = client.get_klines(symbol="BTCUSDT", interval=Client.KLINE_INTERVAL_15MINUTE)
+data = pd.DataFrame(klines, columns=short_col_names)
+
 # Convert Open and Close time fields to DateTime
 data["open_time"] = pd.to_datetime(data["open_time"], unit="ms")
 data["close_time"] = pd.to_datetime(data["close_time"], unit="ms")
@@ -68,7 +86,7 @@ def main():
     zlsma = lsma + eq
 
     data["zlsma"] = zlsma
-    data[["open_time", "close_time", "zlsma"]].to_csv('zlsma-BTCUSDT-15m-2023-01-20.csv', index = None, header=True)
+    data[["open_time", "close_time", "zlsma"]].to_csv('zlsma-BTCUSDT-15m.csv', index = None, header=True)
 
 
 if __name__ == "__main__":
